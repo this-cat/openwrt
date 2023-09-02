@@ -201,6 +201,9 @@ netgear,pr2000)
 phicomm,psg1208)
 	ucidef_set_led_netdev "wifi_led" "wifi" "white:wlan2g" "wlan0"
 	;;
+phicomm,psg12x8)
+	ucidef_set_led_netdev "wifi_led" "wifi" "white:wlan2g" "wlan0"
+	;;
 planex,mzk-ex750np|\
 zbtlink,zbt-we826-e)
 	ucidef_set_led_netdev "wifi_led" "wifi" "red:wifi" "wlan0"

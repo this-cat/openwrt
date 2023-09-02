@@ -17,6 +17,7 @@ ramips_setup_interfaces()
 	dovado,tiny-ac|\
 	ohyeah,oy-0001|\
 	phicomm,psg1208|\
+	phicomm,psg12x8|\
 	planex,db-wrt01|\
 	planex,mzk-750dhp|\
 	ralink,mt7620a-evb|\
@@ -286,6 +287,7 @@ ramips_setup_macs()
 	nexx,wt3020-4m|\
 	nexx,wt3020-8m|\
 	phicomm,psg1208|\
+	phicomm,psg12x8|\
 	planex,db-wrt01|\
 	planex,mzk-750dhp|\
 	sanlinking,d240|\
