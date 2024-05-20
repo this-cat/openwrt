@@ -3,6 +3,8 @@
 # Copyright (C) 2013-2019 OpenWrt.org
 # Copyright (C) 2016 Yousong Zhou
 
+KERNEL_LOADADDR:=0x40008000
+
 define Device/cubietech_cubieboard2
   DEVICE_VENDOR := Cubietech
   DEVICE_MODEL := Cubieboard2
@@ -110,6 +112,14 @@ define Device/lemaker_bananapro
 endef
 TARGET_DEVICES += lemaker_bananapro
 
+define Device/licheepi_licheepi-zero-dock
+  DEVICE_VENDOR := LicheePi
+  DEVICE_MODEL := Zero with Dock (V3s)
+  DEVICE_PACKAGES:=kmod-rtc-sunxi
+  SOC := sun8i-v3s
+endef
+TARGET_DEVICES += licheepi_licheepi-zero-dock
+
 define Device/linksprite_pcduino3
   DEVICE_VENDOR := LinkSprite
   DEVICE_MODEL := pcDuino3
@@ -185,6 +195,15 @@ define Device/sinovoip_bananapi-m3
   SOC := sun8i-a83t
 endef
 TARGET_DEVICES += sinovoip_bananapi-m3
+
+define Device/sinovoip_bananapi-p2-zero
+  DEVICE_VENDOR := Sinovoip
+  DEVICE_MODEL := Banana Pi P2 Zero
+  DEVICE_PACKAGES:=kmod-leds-gpio kmod-brcmfmac \
+	cypress-firmware-43430-sdio wpad-basic-mbedtls
+  SOC := sun8i-h2-plus
+endef
+TARGET_DEVICES += sinovoip_bananapi-p2-zero
 
 define Device/xunlong_orangepi-one
   DEVICE_VENDOR := Xunlong

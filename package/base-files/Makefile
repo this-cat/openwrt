@@ -42,7 +42,7 @@ define Package/base-files
   DEPENDS:=+netifd +libc +jsonfilter +SIGNED_PACKAGES:usign +SIGNED_PACKAGES:openwrt-keyring +NAND_SUPPORT:ubi-utils +fstools +fwtool
   TITLE:=Base filesystem for OpenWrt
   URL:=http://openwrt.org/
-  VERSION:=$(PKG_RELEASE)-$(REVISION)
+  VERSION:=$(PKG_RELEASE)~$(lastword $(subst -, ,$(REVISION)))
 endef
 
 define Package/base-files/conffiles
@@ -108,11 +108,28 @@ define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
 endef
 
+define Build/Quilt
+endef
+
 define Build/Compile/Default
 
 endef
 Build/Compile = $(Build/Compile/Default)
 
+ifneq ($(CONFIG_USE_APK),)
+  define Build/Configure
+	[ -s $(BUILD_KEY_APK_SEC) -a -s $(BUILD_KEY_APK_PUB) ] || \
+		$(STAGING_DIR_HOST)/bin/openssl ecparam -name prime256v1 -genkey -noout -out $(BUILD_KEY_APK_SEC); \
+		$(STAGING_DIR_HOST)/bin/openssl ec -in $(BUILD_KEY_APK_SEC) -pubout > $(BUILD_KEY_APK_PUB)
+  endef
+
+ifndef CONFIG_BUILDBOT
+  define Package/base-files/install-key
+	mkdir -p $(1)/etc/apk/keys
+	$(CP) $(BUILD_KEY_APK_PUB) $(1)/etc/apk/keys/
+  endef
+endif
+else
 ifdef CONFIG_SIGNED_PACKAGES
   define Build/Configure
 	[ -s $(BUILD_KEY) -a -s $(BUILD_KEY).pub ] || \
@@ -127,8 +144,8 @@ ifndef CONFIG_BUILDBOT
   define Package/base-files/install-key
 	mkdir -p $(1)/etc/opkg/keys
 	$(CP) $(BUILD_KEY).pub $(1)/etc/opkg/keys/`$(STAGING_DIR_HOST)/bin/usign -F -p $(BUILD_KEY).pub`
-
   endef
+endif
 endif
 endif
 
@@ -196,7 +213,8 @@ define Package/base-files/install
 		$(1)/usr/lib \
 		$(1)/usr/bin \
 		$(1)/sys \
-		$(1)/www \
+		$(1)/www
+	mkdir -p -m 750 \
 		$(1)/root
 
 	$(LN) /proc/mounts $(1)/etc/mtab
@@ -230,15 +248,21 @@ endif
 		cat $(BIN_DIR)/feeds.buildinfo >>$(1)/etc/build.feeds; \
 		cat $(BIN_DIR)/version.buildinfo >>$(1)/etc/build.version)
 
+	$(if $(CONFIG_TARGET_PREINIT_DISABLE_FAILSAFE), \
+		rm -f $(1)/etc/banner.failsafe,)
+
+ifneq ($(CONFIG_USE_APK),)
+	mkdir -p $(1)/etc/apk/
+	$(call FeedSourcesAppendAPK,$(1)/etc/apk/repositories)
+	$(VERSION_SED_SCRIPT) $(1)/etc/apk/repositories
+else
 	$(if $(CONFIG_CLEAN_IPKG),, \
 		mkdir -p $(1)/etc/opkg; \
-		$(call FeedSourcesAppend,$(1)/etc/opkg/distfeeds.conf); \
+		$(call FeedSourcesAppendOPKG,$(1)/etc/opkg/distfeeds.conf); \
 		$(VERSION_SED_SCRIPT) $(1)/etc/opkg/distfeeds.conf)
 	$(if $(CONFIG_IPK_FILES_CHECKSUMS),, \
 		rm -f $(1)/sbin/pkg_check)
-
-	$(if $(CONFIG_TARGET_PREINIT_DISABLE_FAILSAFE), \
-		rm -f $(1)/etc/banner.failsafe,)
+endif
 endef
 
 ifneq ($(DUMP),1)

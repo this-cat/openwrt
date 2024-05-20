@@ -26,6 +26,14 @@ menu "Global build settings"
 		  directory containing machine readable list of built profiles
 		  and resulting images.
 
+	config JSON_CYCLONEDX_SBOM
+		bool "Create CycloneDX SBOM JSON"
+		default BUILDBOT
+		help
+		  Create a JSON files *.bom.cdx.json in the build
+		  directory containing Software Bill Of Materials in CycloneDX
+		  format.
+
 	config ALL_NONSHARED
 		bool "Select all target specific packages by default"
 		select ALL_KMODS
@@ -59,6 +67,9 @@ menu "Global build settings"
 	config DOWNLOAD_CHECK_CERTIFICATE
 		bool "Enable TLS certificate verification during package download"
 		default y
+
+	config USE_APK
+		bool "Use APK instead of OPKG to build distribution (EXPERIMENTAL)"
 
 	comment "General build options"
 
@@ -220,6 +231,7 @@ menu "Global build settings"
 
 	config STRIP_KERNEL_EXPORTS
 		bool "Strip unnecessary exports from the kernel image"
+		depends on !LINUX_6_6
 		help
 		  Reduces kernel size by stripping unused kernel exports from the kernel
 		  image.  Note that this might make the kernel incompatible with any kernel
@@ -285,6 +297,8 @@ menu "Global build settings"
 			bool "Regular"
 		config PKG_CC_STACKPROTECTOR_STRONG
 			bool "Strong"
+		config PKG_CC_STACKPROTECTOR_ALL
+			bool "All"
 	endchoice
 
 	choice
